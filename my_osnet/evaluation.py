@@ -242,6 +242,7 @@ batch_size = 200
 query_loader = DataLoader(query_data,batch_size=batch_size,shuffle=False)
 gallery_loader = DataLoader(gallery_data,batch_size=batch_size,shuffle=False)
 
+#%%
 query_features = feature_evaluation(model1, query_loader, device=device)
 gallery_features = feature_evaluation(model1, gallery_loader, device)
 

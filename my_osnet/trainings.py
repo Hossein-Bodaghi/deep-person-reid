@@ -33,7 +33,7 @@ def tensor_max(tensor):
     y = torch.zeros(tensor.size(),device=device).scatter_(1, idx, 1.)
     return y
 
-def tensor_thresh(tensor, thr):
+def tensor_thresh(tensor, thr=0.5):
     out = (tensor>thr).float()
     return out
         
@@ -104,7 +104,7 @@ def train_collection(num_epoch,
             
             # body type
             loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-            y = tensor_thresh(out_data[2])
+            y = tensor_thresh(out_data[2], 0.5)
             metrics = boolian_metrics(data[4].float(),y)
             ft_train.append(metrics[3])
             
@@ -122,7 +122,7 @@ def train_collection(num_epoch,
             
             # gender
             loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-            y = tensor_thresh(out_data[5])
+            y = tensor_thresh(out_data[5], 0.5)
             metrics = boolian_metrics(data[7].float(),y)  
             ft_train.append(metrics[3])
             
@@ -195,7 +195,7 @@ def train_collection(num_epoch,
                 
                 # body type
                 loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-                y = tensor_thresh(out_data[2])
+                y = tensor_thresh(out_data[2], 0.5)
                 metrics = boolian_metrics(data[4].float(),y)
                 ft_test.append(metrics[3])
                 
@@ -213,7 +213,7 @@ def train_collection(num_epoch,
                 
                 # gender
                 loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-                y = tensor_thresh(out_data[5])
+                y = tensor_thresh(out_data[5], 0.5)
                 metrics = boolian_metrics(data[7].float(),y)  
                 ft_test.append(metrics[3])
                 
@@ -225,7 +225,7 @@ def train_collection(num_epoch,
                 
                 # body colour
                 loss7 = criterion1(out_data[7],data[9].argmax(dim=1))      
-                y = tensor_max(out_data[7])
+                y = tensor_thresh(out_data[7], 0.5)
                 metrics = tensor_metrics(data[9].float(),y)
                 ft_test.append(metrics[7])
                 
@@ -333,7 +333,7 @@ def train_collection_id(num_epoch,
             
             # body type
             loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-            y = tensor_thresh(out_data[2])
+            y = tensor_thresh(out_data[2], 0.5)
             metrics = boolian_metrics(data[4].float(),y)
             ft_train.append(metrics[3])
             
@@ -351,7 +351,7 @@ def train_collection_id(num_epoch,
             
             # gender
             loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-            y = tensor_thresh(out_data[5])
+            y = tensor_thresh(out_data[5], 0.5)
             metrics = boolian_metrics(data[7].float(),y)  
             ft_train.append(metrics[3])
             
@@ -433,7 +433,7 @@ def train_collection_id(num_epoch,
                 
                 # body type
                 loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-                y = tensor_thresh(out_data[2])
+                y = tensor_thresh(out_data[2], 0.5)
                 metrics = boolian_metrics(data[4].float(),y)
                 ft_test.append(metrics[3])
                 
@@ -451,7 +451,7 @@ def train_collection_id(num_epoch,
                 
                 # gender
                 loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-                y = tensor_thresh(out_data[5])
+                y = tensor_thresh(out_data[5], 0.5)
                 metrics = boolian_metrics(data[7].float(),y)  
                 ft_test.append(metrics[3])
                 
@@ -463,7 +463,7 @@ def train_collection_id(num_epoch,
                 
                 # body colour
                 loss7 = criterion1(out_data[7],data[9].argmax(dim=1))      
-                y = tensor_max(out_data[7])
+                y = tensor_thresh(out_data[7], 0.5)
                 metrics = tensor_metrics(data[9].float(),y)
                 ft_test.append(metrics[7])
                 
