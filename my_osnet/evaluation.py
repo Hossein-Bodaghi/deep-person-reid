@@ -141,7 +141,7 @@ def attr_metrics(attr_net, test_loader, device):
             foot_color_metrics.append(metrics)
             
     finish = time.time()
-    print('the time of calculating attributes metrics for {} images is:'.format(length), finish - start)
+    print('the time of calculating attributes metrics for {} images is: {} min'.format(length, (finish - start)/60))
 
     return [head_metrics,
     body_metrics,
@@ -270,8 +270,14 @@ rank = torchreid.metrics.rank.evaluate_rank(dist_matrix, query_np, gallery_np, q
 #%%
 
 '''
-attributes EVALUATION 
+Attributes EVALUATION 
 precision, recall, accuracy, F1 for attributes
+
+attr_metrics is a (4,46) tensor with metrics value for each attribute 
+part_metrics is a (4,10) tensor with metrics for (head,body,body_type,
+                                                  leg,foot,gender,
+                                                  bags,body_color
+                                                  leg_color,foot_color)
 '''
 
 test_transform = transforms.Compose([transforms.ToTensor(),
@@ -292,55 +298,64 @@ part_metrics = torch.zeros((4,10))
 
 for i in range(10):
     for j in range(len(metrics[0])):
+        # head
         if i==0:
             for k in range(4):
                 attr_metrics[k,:5] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+        # body
         elif i==1:
             for k in range(4):
                 attr_metrics[k,5:8] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]            
+        # body_type
         elif i==2:
             for k in range(4):
                 attr_metrics[k,8:9] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k]
+        # leg
         elif i==3:
             for k in range(4):
                 attr_metrics[k,9:12] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+        # foot
         elif i==4:
             for k in range(4):
                 attr_metrics[k,12:15] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+        # gender 
         elif i==5:
             for k in range(4):
                 attr_metrics[k,15:16] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k]
+        # bags
         elif i==6:
             for k in range(4):
                 attr_metrics[k,16:19] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+        # body_color
         elif i==7:
             for k in range(4):
                 attr_metrics[k,19:28] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+        # leg_color
         elif i==8:
             for k in range(4):
                 attr_metrics[k,28:37] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+        # foot_color
         elif i==9:
             for k in range(4):
                 attr_metrics[k,37:] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
 
+
 attr_metrics = attr_metrics/len(metrics[0])
 part_metrics = part_metrics/len(metrics[0])           
 
-import numpy as np
-a = part_metrics[3].numpy()    
-
-import numpy as np
-a = attr_metrics[3].numpy()  
+#%%
+part_metrics_np = part_metrics[3].numpy()    
+attr_metrics_np = attr_metrics[3].numpy()  
 ###create excel table
 
 # import xlsxwriter
