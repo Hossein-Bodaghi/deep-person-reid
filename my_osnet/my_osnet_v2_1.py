@@ -59,6 +59,9 @@ for i,name in enumerate(img_names[:start_point]):
         train_idx.append(i)
     else:
         test_idx.append(i) 
+        
+torch.save(train_idx, '/home/hossein/deep-person-reid/dr_tale/result/train_idx.pth')
+torch.save(test_idx, '/home/hossein/deep-person-reid/dr_tale/result/test_idx.pth')
 # loading attributes
 
 attr = data_delivery(main_path=main_path,
@@ -98,9 +101,6 @@ test_transform = transforms.Compose([transforms.ToTensor(),
 t_idx, val_idx = train_test_split(train_idx,
                                       test_size=0.25)
 
-
-torch.save(train_idx, '/home/hossein/deep-person-reid/dr_tale/result/train_idx.pth')
-torch.save(test_idx, '/home/hossein/deep-person-reid/dr_tale/result/test_idx.pth')
 
 train_data = MarketLoader3(img_path=main_path,
                           attr=attr,

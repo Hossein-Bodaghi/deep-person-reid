@@ -33,6 +33,12 @@ def tensor_max(tensor):
     y = torch.zeros(tensor.size(),device=device).scatter_(1, idx, 1.)
     return y
 
+def tensor_thresh(tensor, thr):
+    m = torch.nn.Threshold(threshold=thr, value=1.)
+    out = m(tensor)
+    return out
+        
+
 def list2tensor(list1):
     tensor = torch.zeros((len(list1),list1[0].size()[0]))
     for i in range(len(list1)):
