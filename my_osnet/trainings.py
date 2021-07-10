@@ -104,7 +104,7 @@ def train_collection(num_epoch,
             
             # body type
             loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-            y = tensor_max(out_data[2])
+            y = tensor_thresh(out_data[2])
             metrics = boolian_metrics(data[4].float(),y)
             ft_train.append(metrics[3])
             
@@ -122,7 +122,7 @@ def train_collection(num_epoch,
             
             # gender
             loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-            y = tensor_max(out_data[5])
+            y = tensor_thresh(out_data[5])
             metrics = boolian_metrics(data[7].float(),y)  
             ft_train.append(metrics[3])
             
@@ -195,7 +195,7 @@ def train_collection(num_epoch,
                 
                 # body type
                 loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-                y = tensor_max(out_data[2])
+                y = tensor_thresh(out_data[2])
                 metrics = boolian_metrics(data[4].float(),y)
                 ft_test.append(metrics[3])
                 
@@ -213,7 +213,7 @@ def train_collection(num_epoch,
                 
                 # gender
                 loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-                y = tensor_max(out_data[5])
+                y = tensor_thresh(out_data[5])
                 metrics = boolian_metrics(data[7].float(),y)  
                 ft_test.append(metrics[3])
                 
@@ -333,7 +333,7 @@ def train_collection_id(num_epoch,
             
             # body type
             loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-            y = tensor_max(out_data[2])
+            y = tensor_thresh(out_data[2])
             metrics = boolian_metrics(data[4].float(),y)
             ft_train.append(metrics[3])
             
@@ -351,7 +351,7 @@ def train_collection_id(num_epoch,
             
             # gender
             loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-            y = tensor_max(out_data[5])
+            y = tensor_thresh(out_data[5])
             metrics = boolian_metrics(data[7].float(),y)  
             ft_train.append(metrics[3])
             
@@ -433,7 +433,7 @@ def train_collection_id(num_epoch,
                 
                 # body type
                 loss2 = criterion2(out_data[2].squeeze(),data[4].float())    
-                y = tensor_max(out_data[2])
+                y = tensor_thresh(out_data[2])
                 metrics = boolian_metrics(data[4].float(),y)
                 ft_test.append(metrics[3])
                 
@@ -451,7 +451,7 @@ def train_collection_id(num_epoch,
                 
                 # gender
                 loss5 = criterion2(out_data[5].squeeze(),data[7].float())
-                y = tensor_max(out_data[5])
+                y = tensor_thresh(out_data[5])
                 metrics = boolian_metrics(data[7].float(),y)  
                 ft_test.append(metrics[3])
                 
