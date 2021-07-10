@@ -34,8 +34,7 @@ def tensor_max(tensor):
     return y
 
 def tensor_thresh(tensor, thr):
-    m = torch.nn.Threshold(threshold=thr, value=1.)
-    out = m(tensor)
+    out = (tensor>thr).float()
     return out
         
 
