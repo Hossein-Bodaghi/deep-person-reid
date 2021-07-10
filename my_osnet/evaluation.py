@@ -37,6 +37,9 @@ def tensor_max(tensor):
     idx = torch.argmax(tensor, dim=1, keepdim=True)
     y = torch.zeros(tensor.size(),device=device).scatter_(1, idx, 1.)
     return y
+def tensor_thresh(tensor, thr=0.5):
+    out = (tensor>thr).float()
+    return out
 
 def feature_evaluation(model,test_loader,device):
         
@@ -98,7 +101,7 @@ def attr_metrics(attr_net, test_loader, device):
             body_metrics.append(metrics)
             
             # body type  
-            y = tensor_max(out_data[2])
+            y = tensor_thresh(out_data[2])
             metrics = boolian_metrics(data[4].float(),y)
             body_type_metrics.append(metrics)
             
@@ -113,7 +116,7 @@ def attr_metrics(attr_net, test_loader, device):
             foot_metrics.append(metrics)
             
             # gender
-            y = tensor_max(out_data[5])
+            y = tensor_thresh(out_data[5])
             metrics = boolian_metrics(data[7].float(),y)  
             gender_metrics.append(metrics)
             
@@ -123,7 +126,7 @@ def attr_metrics(attr_net, test_loader, device):
             bags_metrics.append(metrics)
             
             # body colour 
-            y = tensor_max(out_data[7])
+            y = tensor_thresh(out_data[7])
             metrics = tensor_metrics(data[9].float(),y)
             body_color_metrics.append(metrics)
             
