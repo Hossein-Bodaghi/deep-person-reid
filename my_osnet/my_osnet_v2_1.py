@@ -19,7 +19,7 @@ version v1 is:
 from delivery import data_delivery 
 from models import my_load_pretrain,MyOsNet,feature_model,MyOsNet2
 from loaders import MarketLoader,MarketLoader2,MarketLoader3, Market_folder_Loader
-from trainings import train_attr_id , id_onehot,train_collection,train_collection_id
+from trainings import train_attr_id , id_onehot, train_collection,train_collection_id2
 import time
 import torch
 import torch.nn as nn 
@@ -36,8 +36,8 @@ torch.cuda.empty_cache()
 import numpy as np
 
 main_path = '/home/hossein/deep-person-reid/my_osnet/Market-1501-v15.09.15/gt_bbox/'
-path_attr = '/home/hossein/deep-person-reid/dr_tale/final_attr_org.npy'
-path_start = '/home/hossein/deep-person-reid/dr_tale/final_stop.npy'
+path_attr = '/home/hossein/deep-person-reid/dr_tale/final_attr_org2.npy'
+path_start = '/home/hossein/deep-person-reid/dr_tale/final_stop2.npy'
 path_train = '/home/hossein/deep-person-reid/my_osnet/Market-1501-v15.09.15/bounding_box_train/'
 
 train_names = os.listdir(path_train)
@@ -60,8 +60,8 @@ for i,name in enumerate(img_names[:start_point]):
     else:
         test_idx.append(i) 
         
-torch.save(train_idx, '/home/hossein/deep-person-reid/dr_tale/result/train_idx.pth')
-torch.save(test_idx, '/home/hossein/deep-person-reid/dr_tale/result/test_idx.pth')
+torch.save(train_idx, '/home/hossein/deep-person-reid/dr_tale/result/train_idx2.pth')
+torch.save(test_idx, '/home/hossein/deep-person-reid/dr_tale/result/test_idx2.pth')
 # loading attributes
 
 attr = data_delivery(main_path=main_path,
@@ -140,7 +140,7 @@ attr_net = MyOsNet2(feat_model,
                    num_id=attr['id'].size()[1],
                    feature_dim=512,
                    attr_dim=49,
-                   id_inc=True,
+                   id_inc=False,
                    attr_inc=False)
 
 
@@ -162,22 +162,24 @@ freq_weights = attr['freq_weights']
 id_weights = attr['id_weights']
 freq_weights = freq_weights
 id_weights = id_weights
-
+train_collection_id2
 lr = 0.0001
 
 criterion1 = nn.CrossEntropyLoss()
-#criterion2 = nn.MultiLabelSoftMarginLoss(weight=freq_weights)
+criterion3 = nn.MultiLabelSoftMarginLoss()
 # criterion2 = nn.BCELoss()
 criterion2 = nn.BCEWithLogitsLoss()
 params = attr_net.parameters()
 
 optimizer = torch.optim.Adam(params, lr=lr, betas=(0.9, 0.99), eps=1e-08)
+stepsize =  15
+stepsize = 30
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.7)
 #%%
 
-num_epoch = 100
+num_epoch = 400
 saving_path = '/home/hossein/deep-person-reid/dr_tale/result/'
-train_collection_id(num_epoch,
+train_collection_id2(num_epoch,
                      attr_net,
                      train_loader,
                      test_loader,
@@ -185,10 +187,11 @@ train_collection_id(num_epoch,
                      scheduler,
                      criterion1,
                      criterion2,
+                     criterion3,
                      saving_path,
                      attr['id'].size()[1],
                      device = device,
-                     version='V1_4')
+                     version='V1_52')
 #%%
 '''
 EVALUATION

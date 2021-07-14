@@ -622,14 +622,14 @@ def train_collection_id2(num_epoch,
             metrics = tensor_metrics(data[11].float(),y)      
             ft_train.append(metrics[7])
             
-            # id
-            loss10 = criterion1(out_data[-1],data[1].argmax(dim=1))
-            y = tensor_max(out_data[-1])
-            metrics = tensor_metrics(data[1].float(),y)      
-            ft_train.append(metrics[7])            
+            # # id
+            # loss10 = criterion1(out_data[-1],data[1].argmax(dim=1))
+            # y = tensor_max(out_data[-1])
+            # metrics = tensor_metrics(data[1].float(),y)      
+            # ft_train.append(metrics[7])            
             
             # total loss
-            loss = loss0+loss1+loss2+loss3+loss4+loss5+loss6+loss7+loss8+loss10
+            loss = loss0+loss1+loss2+loss3+loss4+loss5+loss6+loss7+loss8
             loss_e.append(loss.item())
             
             # backward step
@@ -722,11 +722,11 @@ def train_collection_id2(num_epoch,
                 metrics = tensor_metrics(data[11].float(),y)      
                 ft_test.append(metrics[7])
 
-                # id
-                loss10 = criterion1(out_data[-1],data[1].argmax(dim=1))
-                y = tensor_max(out_data[-1])
-                metrics = tensor_metrics(data[1].float(),y)      
-                ft_train.append(metrics[7])          
+                # # id
+                # loss10 = criterion1(out_data[-1],data[1].argmax(dim=1))
+                # y = tensor_max(out_data[-1])
+                # metrics = tensor_metrics(data[1].float(),y)      
+                # ft_train.append(metrics[7])          
                 
                 # total loss
                 loss = loss0+loss1+loss2+loss3+loss4+loss5+loss6+loss7+loss8+loss9

@@ -91,7 +91,7 @@ def tensor_metrics(target,predict):
     for j in range(predict.size()[1]):
         precision[j] = true_positive[j]/(true_positive[j]+false_negative[j]+eps)
         recall[j] = true_positive[j]/(true_positive[j]+false_negative[j]+eps)
-        accuracy[j] = true_positive[j]/(true_positive[j]+false_negative[j]+true_negative[j]+false_positive[j]+eps)
+        accuracy[j] = (true_positive[j]+true_negative[j])/(true_positive[j]+false_negative[j]+true_negative[j]+false_positive[j]+eps)
         f1[j] = 2*(precision[j]*recall[j])/(precision[j]+recall[j]+eps)       
         
     return [precision,
@@ -125,7 +125,7 @@ def boolian_metrics(target,predict):
             
     precision_total = true_positive_total/(true_positive_total+false_positive_total+eps)
     recall_total = true_positive_total/(true_positive_total+false_negative_total+eps)
-    accuracy_total = true_positive_total/(true_positive_total+false_negative_total+true_negative_total+false_positive_total+eps)
+    accuracy_total = (true_positive_total+true_negative_total)/(true_positive_total+false_negative_total+true_negative_total+false_positive_total+eps)
     f1_total = 2*(precision_total*recall_total)/(precision_total+recall_total+eps)
     
     return [precision_total,
@@ -133,6 +133,98 @@ def boolian_metrics(target,predict):
             accuracy_total,
             f1_total]
 
+def tensor_metrics_detailes(target,predict):
+    '''
+    
+    Parameters
+    ----------
+    target : torch-tensor
+        (N,C) the value of each element should be zero or one.
+        N is batch size and C is number of classes.
+        C must be more than one (not recommended for boolians).
+    predict : torch-tensor
+        (N,C) the value of element should be zero or one.
+        N is batch size and C is number of classes. 
+        C must be more than one (not recommended for boolians).
+    Returns
+    -------
+    list
+        [precision,
+         recall,
+         accuracy,
+         f1,
+         precision_total,
+         recall_total,
+         accuracy_total,
+         f1_total].
+        
+    '''
+    
+    eps = 1e-6
+    
+    true_positive = torch.zeros((predict.size()[1]))
+    true_negative = torch.zeros((predict.size()[1]))
+    false_positive = torch.zeros((predict.size()[1]))
+    false_negative = torch.zeros((predict.size()[1]))
+    
+    real_positive = torch.zeros((predict.size()[1]))
+    real_negative = torch.zeros((predict.size()[1]))
+    
+    true_positive_total = 0
+    true_negative_total = 0
+    false_positive_total = 0
+    false_negative_total = 0
+    
+    
+    for i in range(len(predict)):
+        for j in range(predict.size()[1]):
+            if predict[i,j] == target[i,j] and target[i,j] == 1:
+                real_positive[j] += 1
+                true_positive[j] += 1
+                true_positive_total += 1
+            elif predict[i,j] == target[i,j] and target[i,j] == 0:
+                real_negative += 1
+                true_negative[j] += 1
+                true_negative_total += 1
+            elif predict[i,j] != target[i,j] and target[i,j] == 1:
+                real_positive[j] += 1
+                false_negative[j] += 1
+                false_negative_total += 1
+            elif predict[i,j] != target[i,j] and target[i,j] == 0:
+                real_negative += 1
+                false_positive[j] += 1
+                false_positive_total += 1
+    
+    precision = torch.zeros((predict.size()[1]))
+    recall = torch.zeros((predict.size()[1]))
+    accuracy = torch.zeros((predict.size()[1]))
+    f1 = torch.zeros((predict.size()[1]))
+    
+    precision_total = true_positive_total/(true_positive_total+false_positive_total+eps)
+    recall_total = true_positive_total/(true_positive_total+false_negative_total+eps)
+    accuracy_total = (true_positive_total+true_negative_total)/(true_positive_total+false_negative_total+true_negative_total+false_positive_total+eps)
+    f1_total = 2*(precision_total*recall_total)/(precision_total+recall_total+eps)
+    
+    for j in range(predict.size()[1]):
+        precision[j] = true_positive[j]/(true_positive[j]+false_negative[j]+eps)
+        recall[j] = true_positive[j]/(true_positive[j]+false_negative[j]+eps)
+        accuracy[j] = (true_positive[j]+true_negative[j])/(true_positive[j]+false_negative[j]+true_negative[j]+false_positive[j]+eps)
+        f1[j] = 2*(precision[j]*recall[j])/(precision[j]+recall[j]+eps)       
+        
+    return [precision,
+            recall,
+            accuracy,
+            f1,
+            precision_total,
+            recall_total,
+            accuracy_total,
+            f1_total,
+            real_positive,
+            true_positive,
+            false_positive,
+            real_negative,
+            true_negative,
+            false_negative]
 
 # distances: 'euclidean' , 'cosin_similarity'
 # takes two dictionary that should containe ['id']

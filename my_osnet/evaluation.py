@@ -18,7 +18,7 @@ version v1 is:
 from delivery import data_delivery 
 from models import my_load_pretrain,MyOsNet,feature_model,MyOsNet2
 from loaders import MarketLoader,MarketLoader2,MarketLoader3, Market_folder_Loader
-from metrics import tensor_metrics, boolian_metrics
+from metrics import tensor_metrics, boolian_metrics, tensor_metrics_detailes
 import time
 import torch
 import torch.nn as nn 
@@ -37,7 +37,7 @@ def tensor_max(tensor):
     idx = torch.argmax(tensor, dim=1, keepdim=True)
     y = torch.zeros(tensor.size(),device=device).scatter_(1, idx, 1.)
     return y
-def tensor_thresh(tensor, thr=0.5):
+def tensor_thresh(tensor, thr=0.3):
     out = (tensor>thr).float()
     return out
 
@@ -61,7 +61,7 @@ def feature_evaluation(model,test_loader,device):
     features = torch.cat(features)
     return features
 
-def attr_metrics(attr_net, test_loader, device):
+def attr_metrics_calculator(attr_net, test_loader, device):
     
     head_metrics = []
     body_metrics = []
@@ -101,7 +101,7 @@ def attr_metrics(attr_net, test_loader, device):
             body_metrics.append(metrics)
             
             # body type  
-            y = tensor_thresh(out_data[2])
+            y = tensor_thresh(out_data[2],thr=0.7)
             metrics = boolian_metrics(data[4].float(),y)
             body_type_metrics.append(metrics)
             
@@ -116,7 +116,7 @@ def attr_metrics(attr_net, test_loader, device):
             foot_metrics.append(metrics)
             
             # gender
-            y = tensor_thresh(out_data[5])
+            y = tensor_thresh(out_data[5], thr=0.9)
             metrics = boolian_metrics(data[7].float(),y)  
             gender_metrics.append(metrics)
             
@@ -127,7 +127,7 @@ def attr_metrics(attr_net, test_loader, device):
             
             # body colour 
             y = tensor_thresh(out_data[7])
-            metrics = tensor_metrics(data[9].float(),y)
+            metrics = tensor_metrics_detailes(data[9].float(),y)
             body_color_metrics.append(metrics)
             
             # leg colour
@@ -176,8 +176,8 @@ def map_evaluation(query_featers, gallery_features, dist_matrix):
 
 #%%
 main_path = '/home/hossein/deep-person-reid/my_osnet/Market-1501-v15.09.15/gt_bbox/'
-path_attr = '/home/hossein/deep-person-reid/dr_tale/final_attr_org.npy'
-path_start = '/home/hossein/deep-person-reid/dr_tale/final_stop.npy'
+path_attr = '/home/hossein/deep-person-reid/dr_tale/final_attr_org2.npy'
+path_start = '/home/hossein/deep-person-reid/dr_tale/final_stop2.npy'
 
 attr = data_delivery(main_path=main_path,
                      path_attr=path_attr,
@@ -202,13 +202,13 @@ model = models.build_model(
 # new_model = my_load_pretrain(model , pretrain_path = pretrain_path)
 feat_model = feature_model(model) # final output (n_batch,512,1,1)
 
-model_path = '/home/hossein/deep-person-reid/my_osnet/result/attrnet_V1_4.pth'
+model_path = '/home/hossein/deep-person-reid/dr_tale/result/V1_5/attrnet_V1_5_epoch100.pth'
 feature_net = torch.load(model_path)
 model1 = MyOsNet2(feat_model,
-                   num_id=270,
+                   num_id=420,
                    feature_dim=512,
                    attr_dim=49,
-                   id_inc=True,
+                   id_inc=False,
                    attr_inc=False)
 
 model1.load_state_dict(feature_net.state_dict())
@@ -292,9 +292,17 @@ test_data = MarketLoader3(img_path=main_path,
 batch_size = 200
 test_loader = DataLoader(test_data,batch_size=batch_size,shuffle=True)
 
-metrics = attr_metrics(model1, test_loader, device)
+metrics = attr_metrics_calculator(model1, test_loader, device)
+
+#%%
+# precision recall accuracy F1
 attr_metrics = torch.zeros((4,46))
 part_metrics = torch.zeros((4,10))
+# real_positiv, t_p, f_p, t_n, real_negative, f_n, total
+body_color_detailes = torch.zeros((6,9))
+# for j in range(len(metrics[7])):
+#     for k in range(4):
+#         body_color_detailes[]
 
 for i in range(10):
     for j in range(len(metrics[0])):
@@ -338,6 +346,10 @@ for i in range(10):
             for k in range(4):
                 attr_metrics[k,19:28] += metrics[i][j][k]
                 part_metrics[k,i] += metrics[i][j][k+4]
+                body_color_detailes[k,:] += metrics[i][j][k+8]
+                if k == 3:
+                    for o in range(2):
+                        body_color_detailes[o+4,:] += metrics[i][j][o+12]
         # leg_color
         elif i==8:
             for k in range(4):
@@ -351,11 +363,37 @@ for i in range(10):
 
 
 attr_metrics = attr_metrics/len(metrics[0])
-part_metrics = part_metrics/len(metrics[0])           
+part_metrics = part_metrics/len(metrics[0]) 
+body_color_detailes = body_color_detailes.numpy()          
 
 #%%
-part_metrics_np = part_metrics[3].numpy()    
-attr_metrics_np = attr_metrics[3].numpy()  
+import pandas as pd
+
+
+part_metrics_np = part_metrics.numpy()    
+attr_metrics_np = attr_metrics.numpy()  
+attr_colomns = ['cap','hairless','short hair','long hair',
+           'knot', 'Tshirt/shirt','coat',
+           'top','simple/patterned','pants',
+           'short','skirt','shoes','sandal',
+           'hidden','gender','backpack',
+           'hand bag','no bag','b_w','b_r',
+           'b_o','b_y','b_green','b_b',
+           'b_gray','b_p','b_black','l_w',
+           'l_r','l_o','l_y','l_green','l_b',
+           'l_gray','l_p','l_black','f_w',
+           'f_r','f_o','f_y','f_green','f_b',
+           'f_gray','f_p','f_black']
+part_colomns = ['head','body','clothes type','leg','foot','gender','bags', 'body color','leg color','foot color']
+indexes = ['precision', 'recall', 'accuracy', 'F1']
+attr_metrics_pd = pd.DataFrame(attr_metrics_np, columns=attr_colomns, index=indexes)
+part_metrics_pd = pd.DataFrame(part_metrics_np, columns=part_colomns, index=indexes)
+
+body_color_column = ['b_w','b_r',
+           'b_o','b_y','b_green','b_b',
+           'b_gray','b_p','b_black']
+body_color_indexes = ['real_positiv', 't_p', 'f_p', 't_n', 'real_negative', 'f_n']
+body_color_detailes_pd = pd.DataFrame(body_color_detailes, columns=body_color_column, index=body_color_indexes)
 ###create excel table
 
 # import xlsxwriter
